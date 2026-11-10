@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex"><title>Administrador</title>
+<style>:root{--bg:#eef0f3;--card:#fff;--ink:#14171c;--mute:#5b626d;--line:#d9dde3;--accent:#12a150;--accentink:#fff;--tag:#ff5a1f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101216;--card:#1a1d23;--ink:#f2f4f7;--mute:#a0a7b3;--line:#2b3039;--accent:#2ecc71;--accentink:#08150d;--tag:#ff7a45;color-scheme:dark}}
+*{box-sizing:inherit}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:20px 14px 90px}
+h1{font-size:clamp(34px,10vw,56px);line-height:.95;font-weight:800;letter-spacing:-.03em;margin:8px 0}
+.sub{color:var(--mute);margin:0 0 18px;font-size:15px}
+.btn{display:block;text-align:center;text-decoration:none;border:0;cursor:pointer;font-family:inherit;background:var(--accent);color:var(--accentink);font-weight:800;font-size:15px;padding:12px 8px;border-radius:10px}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1{font-size:30px}h2{font-size:17px;margin:0 0 6px}
+input{width:100%;font:inherit;font-size:16px;padding:11px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);margin:4px 0 8px}
+label{font-size:13px;color:var(--mute)}.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.row{display:flex;gap:10px}.row>div{flex:1}.thumb{width:90px;height:90px;object-fit:cover;border-radius:10px;background:var(--line);flex:none}
+.alt{background:var(--line);color:var(--ink)}.del{background:none;color:#d33;padding:8px}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);display:flex;gap:10px}.bar .btn{flex:1}
+.steps{color:var(--mute);font-size:14px;line-height:1.45}.err{color:#d33;min-height:20px}
+textarea{width:100%;height:120px;font:12px monospace;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px}
+.st{font-size:13px;min-height:16px;margin-bottom:6px;color:var(--mute)}.bar .btn:disabled{opacity:.6}</style></head><body><div class="wrap">
+<div id="login"><h1>Administrador</h1>
+<label for="u">Nombre</label><input id="u" autocomplete="username">
+<label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password">
+<div class="err" id="err"></div><button class="btn" id="go" style="width:100%">Entrar</button></div>
+<div id="app" hidden><h1>Editar catálogo</h1>
+<div class="box"><h2>Conexión con GitHub</h2>
+<label>Usuario de GitHub</label><input id="gu" autocapitalize="none">
+<label>Nombre del repositorio</label><input id="gr" value="catalogo" autocapitalize="none">
+<label>Llave de acceso (token)</label><input id="gt" type="password" autocomplete="off">
+<p class="steps">Se guarda solo en este celular. No la compartas con nadie.</p></div>
+<div class="box"><label>Nombre del negocio</label><input id="neg"><label>WhatsApp (con código de país)</label><input id="wsp" inputmode="numeric"></div>
+<div id="list"></div><button class="btn alt" id="add" style="width:100%">Agregar modelo</button></div></div>
+<div class="bar" id="bar" hidden><div style="flex:1"><div class="st" id="st"></div><button class="btn" id="pub" style="width:100%">Publicar cambios</button></div></div>
+<input type="file" id="file" accept="image/*" hidden>
+<script src="productos.js"></script>
+<script>
+var HASH="5c35f2c42d3797c8a2680dd27ba6b5a9fb07f5f99cbba235f588b1ca3dea8405",items=PRODUCTOS.map(function(x){return Object.assign({},x)}),pending=-1,thumbs={},newPhotos={};
+function $(i){return document.getElementById(i)}
+function hex(b){return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+function saveCfg(){try{localStorage.setItem("tt",JSON.stringify({o:$("gu").value.trim(),r:$("gr").value.trim(),t:$("gt").value.trim()}))}catch(e){}}
+function loadCfg(){try{var c=JSON.parse(localStorage.getItem("tt")||"{}");if(c.o)$("gu").value=c.o;if(c.r)$("gr").value=c.r;if(c.t)$("gt").value=c.t}catch(e){}}
+["gu","gr","gt"].forEach(function(i){$(i).oninput=saveCfg});
+$("go").onclick=async function(){var d=new TextEncoder().encode($("u").value.trim().toLowerCase()+"|"+$("p").value);
+try{var h=hex(await crypto.subtle.digest("SHA-256",d))}catch(e){$("err").textContent="Abre esta página desde https.";return}
+if(h!==HASH){$("err").textContent="Nombre o contraseña incorrectos.";return}
+$("login").hidden=true;$("app").hidden=false;$("bar").hidden=false;$("neg").value=NEGOCIO;$("wsp").value=WHATSAPP;loadCfg();render()};
+function gen(){var n=$("neg").value,w=$("wsp").value.replace(/\D/g,"");
+return "var NEGOCIO="+JSON.stringify(n)+";\nvar WHATSAPP="+JSON.stringify(w)+";\nvar PRODUCTOS=[\n"+items.map(function(p){var pr=p.precio===null||p.precio===""||isNaN(p.precio)?"null":Number(p.precio);return ' {nombre:'+JSON.stringify(p.nombre)+',talla:'+(Number(p.talla)||0)+',precio:'+pr+',foto:'+JSON.stringify(p.foto)+'},'}).join("\n")+"\n];\n"}
+function render(){var L=$("list");L.innerHTML="";items.forEach(function(p,i){var b=document.createElement("div");b.className="box";
+b.innerHTML='<div class="row"><img class="thumb" alt=""><div><label>Modelo</label><input data-k="nombre"><div class="row"><div><label>Talla</label><input data-k="talla" inputmode="numeric"></div><div><label>Precio en Bs</label><input data-k="precio" inputmode="numeric" placeholder="vacío = consultar"></div></div></div></div><div class="row"><button class="btn alt" data-a="foto">Cambiar foto</button><button class="btn del" data-a="del">Quitar</button></div>';
+var im=b.querySelector("img");im.src=thumbs[p.foto]||p.foto;
+b.querySelectorAll("input").forEach(function(inp){var k=inp.dataset.k;inp.value=p[k]===null?"":p[k];inp.oninput=function(){p[k]=k==="precio"&&inp.value===""?null:inp.value}});
+b.querySelector('[data-a="foto"]').onclick=function(){pending=i;$("file").click()};
+b.querySelector('[data-a="del"]').onclick=function(){if(confirm("¿Quitar este modelo?")){items.splice(i,1);render()}};L.appendChild(b)})}
+$("add").onclick=function(){items.push({nombre:"Nuevo modelo",talla:40,precio:null,foto:""});render();window.scrollTo(0,document.body.scrollHeight)};
+$("file").onchange=function(e){var f=e.target.files[0];if(!f||pending<0)return;var i=pending,img=new Image(),u=URL.createObjectURL(f);
+img.onload=function(){var s=Math.min(1,900/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=img.width*s;c.height=img.height*s;c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+var d=c.toDataURL("image/jpeg",.78),name="foto"+Date.now()+".jpg";newPhotos[name]=d.split(",")[1];thumbs[name]=d;items[i].foto=name;render()};img.src=u;e.target.value=""};
+function st(m,bad){$("st").textContent=m;$("st").style.color=bad?"#d33":""}
+async function api(method,path,body){var c={o:$("gu").value.trim(),r:$("gr").value.trim(),t:$("gt").value.trim()};
+return fetch("https://api.github.com/repos/"+c.o+"/"+c.r+"/contents/"+path+(method==="GET"?"?t="+Date.now():""),{method:method,headers:{Authorization:"Bearer "+c.t,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:body?JSON.stringify(body):undefined})}
+async function put(path,b64,msg){var sha,g=await api("GET",path);if(g.ok)sha=(await g.json()).sha;else if(g.status!==404)throw g.status;
+var r=await api("PUT",path,{message:msg,content:b64,sha:sha});if(!r.ok)throw r.status}
+$("pub").onclick=async function(){if(!$("gu").value.trim()||!$("gr").value.trim()||!$("gt").value.trim()){st("Llena usuario, repositorio y llave de GitHub.",true);return}
+if(items.some(function(p){return !p.foto})){st("Hay un modelo sin foto. Toca Cambiar foto.",true);return}
+$("pub").disabled=true;
+try{var n=Object.keys(newPhotos);for(var k=0;k<n.length;k++){st("Subiendo foto "+(k+1)+" de "+n.length+"...");await put(n[k],newPhotos[n[k]],"Foto nueva")}
+st("Guardando lista de modelos...");await put("productos.js",btoa(unescape(encodeURIComponent(gen()))),"Actualizar catálogo");newPhotos={};
+st("Publicado. Se verá en la página en 1 o 2 minutos.")}
+catch(e){st(e===401?"La llave no sirve o venció. Crea otra.":e===404||e===403?"No tengo permiso o no encuentro el repositorio. Revisa usuario, nombre y permisos de la llave.":"No se pudo publicar. Revisa tu internet e intenta otra vez.",true)}
+$("pub").disabled=false};
+</script></body></html>
