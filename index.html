@@ -22,9 +22,18 @@ h1{font-size:clamp(34px,10vw,56px);line-height:.95;font-weight:800;letter-spacin
 .price{font-size:20px;font-weight:800;color:var(--tag)}.price.ask{font-size:14px;color:var(--mute);font-weight:500}.info .btn{margin-top:auto}
 .empty{grid-column:1/-1;text-align:center;color:var(--mute);padding:30px 0}
 .float{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));padding:14px 18px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.ph{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(60px + env(safe-area-inset-top,0px)) 14px calc(14px + env(safe-area-inset-bottom,0px))}
+.lb[hidden]{display:none}
+.lb img{max-width:100%;max-height:66vh;object-fit:contain;border-radius:10px}
+.lbi{color:#fff;text-align:center;width:100%;max-width:420px;display:flex;flex-direction:column;gap:8px}
+.lbi .name{font-size:18px}.lbi .price{font-size:22px}
+.lbx{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;width:46px;height:46px;border:0;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer}
+.lbx:focus-visible{outline:3px solid var(--accent)}
 </style></head><body><div class="wrap">
 <h1 id="t"></h1><p class="sub">Toca el botón del modelo que te guste y escríbenos por WhatsApp.</p>
 <div class="filters" id="filters" role="group" aria-label="Filtrar por talla"></div><div class="grid" id="grid"></div></div>
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto del modelo"><button class="lbx" id="lbx" aria-label="Cerrar">✕</button><img id="lbim" alt=""><div class="lbi"><div class="name" id="lbn"></div><div class="price" id="lbp"></div><a class="btn" id="lbw" target="_blank" rel="noopener" href="#">Lo quiero</a></div></div>
 <a class="btn float" id="fab" href="#">Escribir por WhatsApp</a>
 <script src="productos.js"></script>
 <script>
@@ -38,7 +47,14 @@ function draw(){g.innerHTML="";var l=PRODUCTOS.filter(function(d){return sel==="
 if(!l.length){g.innerHTML='<p class="empty">No hay modelos en esa talla por ahora.</p>';return}
 l.forEach(function(d){var c=document.createElement("div");c.className="card";
 var pr=d.precio?'<div class="price">'+esc(d.precio)+' Bs</div>':'<div class="price ask">Precio por WhatsApp</div>';
-c.innerHTML='<div class="ph"><img src="'+esc(d.foto)+'" alt="'+esc(d.nombre)+'"><span class="size">Talla '+esc(d.talla)+'</span></div><div class="info"><div class="name">'+esc(d.nombre)+'</div>'+pr+'<a class="btn" target="_blank" rel="noopener" href="'+wa("Hola, me interesa el tenis "+d.nombre+", talla "+d.talla)+'">Lo quiero</a></div>';g.appendChild(c)})}
+c.innerHTML='<div class="ph"><img src="'+esc(d.foto)+'" alt="'+esc(d.nombre)+'"><span class="size">Talla '+esc(d.talla)+'</span></div><div class="info"><div class="name">'+esc(d.nombre)+'</div>'+pr+'<a class="btn" target="_blank" rel="noopener" href="'+wa("Hola, me interesa el tenis "+d.nombre+", talla "+d.talla)+'">Lo quiero</a></div>';g.appendChild(c);var ph=c.querySelector(".ph");ph.tabIndex=0;ph.setAttribute("role","button");ph.setAttribute("aria-label","Ver foto grande de "+d.nombre);ph.onclick=function(){view(d)};ph.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();view(d)}}})}
+var lb=document.getElementById("lb");
+function view(d){document.getElementById("lbim").src=d.foto;document.getElementById("lbim").alt=d.nombre;document.getElementById("lbn").textContent=d.nombre+", talla "+d.talla;
+var p=document.getElementById("lbp");p.textContent=d.precio?d.precio+" Bs":"Precio por WhatsApp";p.className="price"+(d.precio?"":" ask");
+document.getElementById("lbw").href=wa("Hola, me interesa el tenis "+d.nombre+", talla "+d.talla);lb.hidden=false;document.body.style.overflow="hidden";document.getElementById("lbx").focus()}
+function closeView(){lb.hidden=true;document.body.style.overflow=""}
+document.getElementById("lbx").onclick=closeView;lb.onclick=function(e){if(e.target===lb)closeView()};
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!lb.hidden)closeView()});
 document.getElementById("fab").href=wa("Hola, vi el catálogo de "+NEGOCIO+" y quiero consultar");
 chips();draw();
 </script></body></html>
