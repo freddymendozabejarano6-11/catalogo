@@ -7,7 +7,7 @@ var PRODUCTOS=[
  {nombre:"Plataforma blanco y lila",talla:39,precio:null,foto:"foto4.jpg"},
  {nombre:"Run verde y naranja",talla:43,precio:110,foto:"foto5.jpg"},
  {nombre:"Negro y gris",talla:40,precio:120,foto:"foto6.jpg"},
- {nombre:"Blanco y azul marino",talla:42,precio:null,foto:"foto1794348129545.jpg"},
+ {nombre:"Blanco y azul marino",talla:42,precio:120,foto:"foto1794348129545.jpg"},
  {nombre:"Clásico blanco y azul",talla:42,precio:null,foto:"foto8.jpg"},
  {nombre:"Casual blanco y azul",talla:42,precio:null,foto:"foto9.jpg"},
 ];
