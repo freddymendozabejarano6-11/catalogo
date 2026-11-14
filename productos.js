@@ -7,5 +7,5 @@ var PRODUCTOS=[
  {nombre:"Run verde y naranja",talla:43,precio:100,foto:"foto5.jpg"},
  {nombre:"Blanco y azul marino",talla:42,precio:100,foto:"foto1794348129545.jpg"},
  {nombre:"Clásico blanco y azul",talla:42,precio:110,foto:"foto8.jpg"},
- {nombre:"Casual blanco y azul",talla:42,precio:110,foto:"foto9.jpg"},
+ {nombre:"Casual blanco y azul",talla:42,precio:100,foto:"foto9.jpg"},
 ];
